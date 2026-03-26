@@ -3,1041 +3,983 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>⚡ Animation Studio — Content Market</title>
+<title>⚡ Content Market Studio</title>
 <style>
-/* ══════════════════════════════════════════════
-   DESIGN TOKENS
-   ══════════════════════════════════════════════ */
-:root {
-  /* App colors */
-  --bg:      #1B2632;
-  --surface: #243040;
-  --s2:      #2C3B4D;
-  --text:    #EEE9DF;
-  --muted:   #8A9BAD;
-  --muted2:  #C9C1B1;
-  --accent:  #FFB162;
-  --accent2: #FF8C2A;
-  --sell:    #A35139;
-  --gain:    #4CAF82;
-  --border:  rgba(238,233,223,.1);
-
-  /* Live-adjustable animation tokens */
-  --anim-dur:        2.4s;
-  --anim-vy-float:   5px;
-  --anim-glow-color: rgba(255,177,98,.5);
-  --anim-glow-size:  28px;
-  --anim-ring-scale: 1.22;
-  --anim-page-y:     14px;
-  --anim-flash-up:   rgba(76,175,130,.32);
-  --anim-flash-down: rgba(163,81,57,.32);
-  --anim-shimmer-spd:2.2s;
-  --anim-slide-x:    56px;
-  --anim-bounce-s:   1.05;
-  --primary-color:   #FFB162;
-  --gain-color:      #4CAF82;
-}
-
-/* ══════════════════════════════════════════════
-   RESET / BASE
-   ══════════════════════════════════════════════ */
-*,*::before,*::after { box-sizing:border-box;margin:0;padding:0; }
-html,body { height:100%;overflow:hidden; }
-body {
-  background:var(--bg);color:var(--text);
+/* ══════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#0a0a0a;color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-  font-size:14px;-webkit-font-smoothing:antialiased;
-}
-/* grain overlay */
-body::before {
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  opacity:.035;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E") repeat;
-}
-button { font-family:inherit;cursor:pointer; }
-a { color:inherit;text-decoration:none; }
-input[type=range] { cursor:pointer; }
-select,input { font-family:inherit; }
+  -webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input{font-family:inherit}
 
-/* ══════════════════════════════════════════════
+/* ══════════════════════════════════════════
    LAYOUT
-   ══════════════════════════════════════════════ */
-.shell {
-  display:grid;
-  grid-template-rows:56px 1fr;
-  grid-template-columns:220px 1fr 300px;
-  height:100vh;
-  overflow:hidden;
-}
-@media (max-width:900px) {
-  .shell {
-    grid-template-columns:1fr;
-    grid-template-rows:56px auto 1fr 280px;
-    overflow:auto;
-  }
-  .sidebar  { grid-row:2;order:2; }
-  .preview  { grid-row:3;order:3; }
-  .controls { grid-row:4;order:4; }
-}
+   ══════════════════════════════════════════ */
+.app{display:grid;grid-template-rows:52px 1fr 80px;height:100vh;overflow:hidden}
 
-/* ── Header ── */
-.header {
-  grid-column:1/-1;
+/* ── Topbar ── */
+.topbar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  background:rgba(27,38,50,.9);
-  border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);
-  position:sticky;top:0;z-index:100;
+  padding:0 18px;
+  background:rgba(15,15,15,.95);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  backdrop-filter:blur(20px);z-index:200;
 }
-.header-brand {
-  font-size:1rem;font-weight:700;color:var(--text);
-  display:flex;align-items:center;gap:10px;
+.tb-brand{
+  display:flex;align-items:center;gap:10px;font-size:.95rem;font-weight:700;
 }
-.header-badge {
-  background:rgba(255,177,98,.15);color:var(--accent);
-  font-size:.68rem;font-weight:700;letter-spacing:.06em;
-  padding:3px 9px;border-radius:20px;border:1px solid rgba(255,177,98,.25);
+.tb-badge{
+  background:rgba(255,177,98,.15);color:#FFB162;font-size:.62rem;font-weight:700;
+  letter-spacing:.07em;padding:3px 9px;border-radius:20px;
+  border:1px solid rgba(255,177,98,.25);
 }
-.header-actions { display:flex;gap:8px; }
+.tb-actions{display:flex;align-items:center;gap:8px}
+.tb-btn{
+  padding:7px 15px;border-radius:10px;font-size:.8rem;font-weight:600;
+  transition:all .15s;
+}
+.tb-btn-ghost{
+  background:rgba(255,255,255,.07);color:#ccc;
+  border:1px solid rgba(255,255,255,.1);
+}
+.tb-btn-ghost:hover{background:rgba(255,255,255,.12);color:#fff}
+.tb-btn-record{
+  background:rgba(220,60,60,.15);color:#ff6b6b;
+  border:1px solid rgba(220,60,60,.25);
+  display:flex;align-items:center;gap:6px;
+}
+.tb-btn-record.active{background:rgba(220,60,60,.3);color:#ff4444}
+.tb-btn-record .dot{
+  width:7px;height:7px;border-radius:50%;background:#ff4444;
+  animation:rec-blink 1s ease-in-out infinite;
+}
+.tb-btn-record.active .dot{animation:rec-blink .6s ease-in-out infinite}
+@keyframes rec-blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-btn-export{
+  background:linear-gradient(135deg,#FFB162,#FF8C2A);color:#1a1a1a;
+  font-weight:700;box-shadow:0 3px 14px rgba(255,177,98,.3);
+  display:flex;align-items:center;gap:6px;
+}
+.tb-btn-export:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,177,98,.4)}
+.tb-btn-export:active{transform:scale(.97)}
+
+/* ── Main area ── */
+.main{display:flex;overflow:hidden}
 
 /* ── Sidebar ── */
-.sidebar {
-  border-right:1px solid var(--border);
-  overflow-y:auto;padding:16px 0;
-  background:rgba(27,38,50,.5);
+.sidebar{
+  width:200px;flex-shrink:0;
+  background:rgba(12,12,12,.9);
+  border-right:1px solid rgba(255,255,255,.07);
+  overflow-y:auto;padding:14px 0;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
 }
-.sidebar-section-title {
-  font-size:.62rem;font-weight:700;color:var(--muted);
-  letter-spacing:.08em;text-transform:uppercase;
-  padding:12px 16px 6px;
+.sb-section{
+  font-size:.6rem;font-weight:700;color:rgba(255,255,255,.35);
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:10px 14px 7px;
 }
-.nav-item {
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;cursor:pointer;border:none;
-  background:none;color:var(--muted2);width:100%;text-align:left;
-  font-size:.85rem;font-weight:500;
-  transition:background .15s,color .15s;border-radius:0;
-  position:relative;
+.preset-item{
+  display:flex;flex-direction:column;gap:0;
+  padding:4px 10px;cursor:pointer;
+  transition:background .12s;border:none;
+  background:none;color:#fff;width:100%;text-align:left;
 }
-.nav-item:hover { background:rgba(238,233,223,.05);color:var(--text); }
-.nav-item.active {
-  color:var(--accent);background:rgba(255,177,98,.07);
-}
-.nav-item.active::before {
-  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:var(--accent);border-radius:0 2px 2px 0;
-}
-.nav-icon { font-size:1.1rem;width:20px;text-align:center; }
-
-/* ── Preview pane ── */
-.preview {
-  overflow:hidden;
-  display:flex;flex-direction:column;
-  background:var(--bg);
-  position:relative;
-}
-.preview-header {
-  padding:14px 20px 12px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;
-}
-.preview-title { font-size:.88rem;font-weight:600;color:var(--text); }
-.preview-sub { font-size:.72rem;color:var(--muted); }
-.preview-body {
-  flex:1;overflow-y:auto;padding:32px 24px;
-  display:flex;align-items:flex-start;justify-content:center;
-}
-.preview-inner {
-  width:100%;max-width:380px;
-}
-/* ambient glow in preview */
-.preview::after {
-  content:'';position:absolute;top:-60px;right:-60px;
-  width:260px;height:260px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,177,98,.06) 0%,transparent 70%);
-  pointer-events:none;
-  animation:orb-drift 10s ease-in-out infinite;
-}
-
-/* ── Controls panel ── */
-.controls {
-  border-left:1px solid var(--border);
-  overflow-y:auto;
-  background:rgba(27,38,50,.5);
-  display:flex;flex-direction:column;
-}
-.controls-header {
-  padding:14px 18px 12px;
-  border-bottom:1px solid var(--border);
-  font-size:.88rem;font-weight:600;
-  color:var(--text);flex-shrink:0;
-}
-.controls-body { padding:16px 18px;flex:1; }
-.ctrl-group {
-  margin-bottom:22px;
-}
-.ctrl-label {
-  font-size:.72rem;font-weight:700;color:var(--muted);
-  letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.ctrl-val { color:var(--accent);font-variant-numeric:tabular-nums; }
-
-/* Range input */
-input[type=range] {
-  width:100%;height:4px;
-  -webkit-appearance:none;appearance:none;
-  background:rgba(238,233,223,.12);border-radius:99px;outline:none;
-  transition:background .2s;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance:none;appearance:none;
-  width:16px;height:16px;border-radius:50%;
-  background:var(--accent);border:2px solid #1B2632;
-  box-shadow:0 2px 8px rgba(255,177,98,.4);
-  transition:transform .12s;
-}
-input[type=range]::-webkit-slider-thumb:hover { transform:scale(1.15); }
-
-/* Color input */
-input[type=color] {
-  width:36px;height:36px;border:none;border-radius:8px;
-  background:none;padding:0;cursor:pointer;
-  vertical-align:middle;
-}
-.color-row { display:flex;align-items:center;gap:10px; }
-.color-hex {
-  flex:1;background:var(--surface);border:1px solid var(--border);
-  border-radius:8px;padding:7px 10px;color:var(--text);
-  font-size:.82rem;outline:none;
-  transition:border-color .2s;
-}
-.color-hex:focus { border-color:rgba(238,233,223,.3); }
-
-/* Select */
-select {
-  width:100%;background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:9px 12px;color:var(--text);
-  font-size:.85rem;outline:none;transition:border-color .2s;
-  -webkit-appearance:none;appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A9BAD' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;
-  padding-right:32px;
-}
-select:focus { border-color:rgba(238,233,223,.3); }
-
-/* Divider */
-.ctrl-divider { border:none;border-top:1px solid var(--border);margin:16px 0; }
-
-/* Export */
-.export-btn {
-  width:100%;padding:13px;border:none;border-radius:12px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#1B2632;font-size:.9rem;font-weight:700;
-  position:relative;overflow:hidden;
-  box-shadow:0 4px 18px rgba(255,177,98,.3);
-  transition:transform .12s,box-shadow .2s;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.export-btn:hover { transform:translateY(-1px);box-shadow:0 8px 26px rgba(255,177,98,.42); }
-.export-btn:active { transform:scale(.97); }
-.export-btn .shimmer {
-  position:absolute;inset:0;border-radius:12px;
-  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.25) 50%,transparent 65%);
-  background-size:200% auto;animation:shimmer-kf 2.2s linear infinite;
-}
-
-.copy-feedback {
-  text-align:center;font-size:.75rem;color:var(--gain);
-  margin-top:8px;opacity:0;transition:opacity .3s;
-}
-.copy-feedback.show { opacity:1; }
-
-/* CSS output textarea */
-.css-out {
-  width:100%;background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;color:var(--muted2);font-size:.72rem;
-  font-family:"SF Mono","Fira Code",monospace;
-  line-height:1.6;padding:10px 12px;resize:none;height:110px;
-  outline:none;margin-top:8px;
-  transition:border-color .2s;
-}
-.css-out:focus { border-color:rgba(238,233,223,.25); }
-
-/* ══════════════════════════════════════════════
-   PREVIEW COMPONENTS (mirrors the real app)
-   ══════════════════════════════════════════════ */
-
-/* ── Vy Avatar ── */
-.pv-vy-wrap {
-  position:relative;width:var(--pv-vy-size,80px);height:var(--pv-vy-size,80px);
-  margin:0 auto 20px;
-}
-.pv-vy-ring {
-  position:absolute;border-radius:50%;border:2px solid rgba(255,177,98,.3);
-  animation:pv-ring var(--anim-dur) ease-in-out infinite;
-}
-.pv-vy-ring-1 { inset:-10px; }
-.pv-vy-ring-2 { inset:-3px;border-color:rgba(255,177,98,.15);animation-delay:.5s; }
-@keyframes pv-ring {
-  0%   { transform:scale(1);opacity:.85; }
-  70%  { transform:scale(var(--anim-ring-scale));opacity:0; }
-  100% { transform:scale(var(--anim-ring-scale));opacity:0; }
-}
-.pv-vy-core {
-  width:var(--pv-vy-size,80px);height:var(--pv-vy-size,80px);border-radius:50%;
-  background:linear-gradient(135deg,var(--primary-color),var(--sell));
+.preset-item:hover .preset-thumb{border-color:rgba(255,177,98,.4)}
+.preset-item.active .preset-thumb{border-color:#FFB162;box-shadow:0 0 0 1px rgba(255,177,98,.3)}
+.preset-thumb{
+  width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;
+  border:2px solid rgba(255,255,255,.08);
+  background:#1a1a1a;position:relative;
+  transition:border-color .15s,box-shadow .15s;
   display:flex;align-items:center;justify-content:center;
-  font-size:2.4rem;
-  box-shadow:0 0 var(--anim-glow-size) var(--anim-glow-color),
-             0 0 60px rgba(255,177,98,.12);
-  animation:pv-vy-float var(--anim-dur) ease-in-out infinite;
+  margin-bottom:5px;
 }
-@keyframes pv-vy-float {
-  0%,100% { transform:translateY(0); box-shadow:0 0 var(--anim-glow-size) var(--anim-glow-color); }
-  50%     { transform:translateY(calc(-1 * var(--anim-vy-float))); box-shadow:0 0 calc(var(--anim-glow-size) * 1.6) var(--anim-glow-color); }
+.preset-thumb-inner{
+  width:34px;height:68px;background:#222;border-radius:8px;
+  position:relative;transition:all .3s;box-shadow:0 4px 12px rgba(0,0,0,.5);
+}
+.preset-thumb-inner::before{
+  content:'';position:absolute;top:5px;left:50%;transform:translateX(-50%);
+  width:16px;height:5px;background:#000;border-radius:3px;
+}
+.preset-thumb-inner::after{
+  content:'';position:absolute;inset:8px 2px 2px;
+  background:linear-gradient(135deg,rgba(255,177,98,.2),rgba(163,81,57,.2));
+  border-radius:5px;
+}
+.preset-badge{
+  position:absolute;top:5px;right:5px;
+  font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:8px;
+}
+.badge-free{background:rgba(76,175,130,.25);color:#4CAF82}
+.preset-meta{display:flex;justify-content:space-between;align-items:center;padding:0 2px}
+.preset-name{font-size:.75rem;font-weight:600;color:#e0e0e0}
+.preset-dur{font-size:.68rem;color:rgba(255,255,255,.35)}
+
+/* ── Stage ── */
+.stage{
+  flex:1;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+#bgCanvas{position:absolute;inset:0;width:100%;height:100%}
+
+.phone-scene{
+  position:relative;z-index:10;
+  perspective:1200px;perspective-origin:50% 40%;
+}
+.phone-wrapper{
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.phone-body{
+  width:232px;height:478px;
+  background:linear-gradient(160deg,#2a2a2a 0%,#1a1a1a 100%);
+  border-radius:50px;position:relative;
+  box-shadow:
+    0 0 0 1.5px #3d3d3d,
+    0 0 0 3px #1a1a1a,
+    0 0 0 4px #3a3a3a,
+    0 40px 100px rgba(0,0,0,.7),
+    0 0 60px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.12);
+  transform-style:preserve-3d;
+}
+/* Titanium frame sheen */
+.phone-body::before{
+  content:'';position:absolute;inset:-4px;border-radius:53px;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,.15) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(255,255,255,.08) 100%);
+  pointer-events:none;z-index:20;
+}
+/* Screen glass reflection */
+.phone-body::after{
+  content:'';position:absolute;inset:10px;border-radius:42px;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,.06) 0%,
+    transparent 40%);
+  pointer-events:none;z-index:30;
 }
 
-/* ── Speech bubble ── */
-.pv-bubble {
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:0 14px 14px 14px;padding:12px 14px;
-  position:relative;margin-left:8px;
+/* Dynamic Island */
+.phone-island{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  width:90px;height:28px;background:#000;border-radius:20px;z-index:25;
+  box-shadow:0 0 0 1px rgba(255,255,255,.05);
 }
-.pv-bubble::before {
-  content:'';position:absolute;top:12px;left:-7px;
-  border:7px solid transparent;border-right-color:var(--surface);border-left:none;
+/* Screen */
+.phone-screen{
+  position:absolute;inset:10px;border-radius:42px;
+  overflow:hidden;background:#000;z-index:5;
+  display:flex;align-items:center;justify-content:center;
 }
-.pv-bubble-name { font-size:.62rem;font-weight:800;color:var(--accent);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px; }
-.pv-bubble-text { font-size:.85rem;color:var(--muted2);line-height:1.45; }
-.pv-vy-row { display:flex;align-items:flex-start;gap:12px;margin-bottom:20px; }
+.phone-screen img{
+  width:100%;height:100%;object-fit:cover;display:none;
+}
+/* Drop zone */
+.drop-zone{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;cursor:pointer;padding:20px;text-align:center;
+  width:100%;height:100%;
+  transition:background .2s;border-radius:42px;
+}
+.drop-zone:hover,.drop-zone.dragover{background:rgba(255,177,98,.06)}
+.drop-icon{
+  width:42px;height:42px;border-radius:50%;
+  border:2px dashed rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;color:rgba(255,255,255,.35);
+  transition:all .2s;
+}
+.drop-zone:hover .drop-icon,.drop-zone.dragover .drop-icon{
+  border-color:rgba(255,177,98,.5);color:#FFB162;
+}
+.drop-label{font-size:.72rem;color:rgba(255,255,255,.3);line-height:1.4}
 
-/* ── Onboarding slide preview ── */
-.pv-ob-wrap {
-  background:var(--bg);border:1px solid var(--border);
-  border-radius:20px;overflow:hidden;position:relative;
-  padding:28px 20px 24px;text-align:center;
-  min-height:200px;
-  animation:pv-page-in var(--anim-page-dur,.35s) cubic-bezier(.22,1,.36,1) both;
-}
-@keyframes pv-page-in {
-  from { opacity:0;transform:translateY(var(--anim-page-y)) }
-  to   { opacity:1;transform:none }
-}
-.pv-ob-logo {
-  font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:8px;
-  letter-spacing:-.02em;
-}
-.pv-ob-logo span { color:var(--primary-color); }
-.pv-ob-body { font-size:.8rem;color:var(--muted2);line-height:1.5;margin-bottom:16px;min-height:36px; }
-.pv-ob-dots { display:flex;gap:6px;justify-content:center; }
-.pv-ob-dot {
-  height:5px;border-radius:99px;background:rgba(238,233,223,.2);
-  transition:width .35s cubic-bezier(.22,1,.36,1),background .35s;
-  width:5px;
-}
-.pv-ob-dot.on { background:var(--primary-color);width:16px; }
-
-/* ── Price flash ── */
-.pv-price-wrap {
-  display:flex;gap:10px;
-}
-.pv-price-card {
-  flex:1;background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:14px 12px;text-align:center;cursor:pointer;
-  transition:transform .15s;
-}
-.pv-price-card:hover { transform:translateY(-2px); }
-.pv-price-label { font-size:.62rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em; }
-.pv-price-num {
-  font-size:1.3rem;font-weight:700;border-radius:6px;padding:2px 4px;
-  display:inline-block;
-}
-.pv-flash-up   { animation:pv-fup var(--anim-flash-dur,.9s) ease forwards; }
-.pv-flash-down { animation:pv-fdn var(--anim-flash-dur,.9s) ease forwards; }
-@keyframes pv-fup  { 0% { background:var(--anim-flash-up) } 100% { background:transparent } }
-@keyframes pv-fdn  { 0% { background:var(--anim-flash-down) } 100% { background:transparent } }
-.pv-pct { font-size:.8rem;font-weight:600;margin-top:4px; }
-.pv-up  { color:var(--gain-color); }
-.pv-dn  { color:var(--sell); }
-
-/* ── Page enter ── */
-.pv-page-demo {
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:14px;
-  animation:pv-page-in var(--anim-page-dur,.35s) cubic-bezier(.22,1,.36,1) both;
-}
-.pv-page-demo-row {
-  display:flex;align-items:center;gap:10px;padding:10px 0;
-  border-bottom:1px solid rgba(238,233,223,.06);
-  animation:pv-slide-up .4s cubic-bezier(.22,1,.36,1) both;
-}
-.pv-page-demo-row:nth-child(1) { animation-delay:.04s; }
-.pv-page-demo-row:nth-child(2) { animation-delay:.1s; }
-.pv-page-demo-row:nth-child(3) { animation-delay:.16s; }
-.pv-page-demo-row:last-child { border-bottom:none; }
-@keyframes pv-slide-up {
-  from { opacity:0;transform:translateY(var(--anim-page-y)); }
-  to   { opacity:1;transform:none; }
-}
-.pv-thumb { width:38px;height:38px;border-radius:8px;background:var(--s2);flex-shrink:0; }
-.pv-line  { height:7px;border-radius:99px;background:rgba(238,233,223,.12); }
-.pv-lines { flex:1;display:flex;flex-direction:column;gap:5px; }
-
-/* ── Button effects ── */
-.pv-btn-grid { display:flex;flex-direction:column;gap:10px; }
-.pv-btn {
-  width:100%;border:none;border-radius:12px;padding:14px;
-  font-size:.9rem;font-weight:700;position:relative;overflow:hidden;
-  transition:transform .12s,box-shadow .2s;
-}
-.pv-btn:active { transform:scale(.96); }
-.pv-btn-primary {
-  background:linear-gradient(135deg,var(--primary-color),var(--accent2));
-  color:#1B2632;box-shadow:0 4px 18px rgba(255,177,98,.28);
-}
-.pv-btn-buy {
-  background:var(--gain-color);color:#fff;
-  box-shadow:0 4px 18px rgba(76,175,130,.22);
-}
-.pv-btn-sell {
-  background:var(--sell);color:#fff;
-  box-shadow:0 4px 18px rgba(163,81,57,.22);
-}
-.pv-btn:hover { transform:translateY(-2px); }
-.shimmer-layer {
-  position:absolute;inset:0;border-radius:12px;
-  background:linear-gradient(105deg,transparent 32%,rgba(255,255,255,.25) 50%,transparent 68%);
-  background-size:200% auto;
-  animation:shimmer-kf var(--anim-shimmer-spd) linear infinite;
-}
-@keyframes shimmer-kf {
-  from { background-position:-200% center; }
-  to   { background-position: 200% center; }
+/* Side buttons */
+.phone-btn{position:absolute;background:#2e2e2e;border-radius:2px}
+.phone-btn-vol-up{width:3px;height:30px;left:-4px;top:110px}
+.phone-btn-vol-dn{width:3px;height:30px;left:-4px;top:150px}
+.phone-btn-power{width:3px;height:50px;right:-4px;top:130px}
+/* Bottom bar */
+.phone-home{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:100px;height:4px;background:rgba(255,255,255,.25);border-radius:3px;z-index:25;
 }
 
-/* ── Card hover ── */
-.pv-card-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
-.pv-card {
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:12px;
-  transition:transform .2s,box-shadow .2s;cursor:default;
-}
-.pv-card:hover {
-  transform:translateY(-3px);
-  box-shadow:0 10px 32px rgba(0,0,0,.5),0 0 0 1px rgba(238,233,223,.18);
-}
-.pv-card-img { width:100%;aspect-ratio:16/9;border-radius:8px;background:var(--s2);margin-bottom:8px; }
-.pv-card-price { font-size:.9rem;font-weight:700; }
-.pv-card-pct { font-size:.72rem;font-weight:600;margin-top:2px; }
-.pv-card-bounce { animation:pv-bounce-in var(--anim-bounce-dur,.5s) cubic-bezier(.22,1,.36,1) both; }
-@keyframes pv-bounce-in {
-  0%   { transform:scale(.82);opacity:0; }
-  60%  { transform:scale(var(--anim-bounce-s));opacity:1; }
-  100% { transform:scale(1); }
+/* ══ Animations ══════════════════════════ */
+.anim-float .phone-wrapper{animation:anim-float 3.2s ease-in-out infinite}
+@keyframes anim-float{
+  0%,100%{transform:translateY(0) rotateX(2deg) rotateY(-4deg)}
+  50%    {transform:translateY(-22px) rotateX(-1deg) rotateY(4deg)}
 }
 
-/* ── XP bar ── */
-.pv-xp-bar-bg { background:rgba(238,233,223,.12);border-radius:99px;height:5px;overflow:hidden; }
-.pv-xp-bar-fill {
-  height:100%;border-radius:99px;
-  background:linear-gradient(90deg,var(--primary-color),var(--sell));
-  animation:pv-xp-fill var(--anim-dur) cubic-bezier(.22,1,.36,1) forwards;
-  width:0%;
-}
-@keyframes pv-xp-fill { to { width:var(--xp-target,68%); } }
-
-/* ── Alert drop ── */
-.pv-alert {
-  background:rgba(76,175,130,.15);color:var(--gain-color);
-  border:1px solid rgba(76,175,130,.25);border-radius:12px;
-  padding:11px 14px;font-size:.85rem;font-weight:500;
-  animation:pv-alert-drop var(--anim-page-dur,.3s) cubic-bezier(.22,1,.36,1) both;
-  margin-bottom:12px;
-}
-@keyframes pv-alert-drop {
-  from { transform:translateY(-14px);opacity:0; }
-  to   { transform:none;opacity:1; }
+.anim-tilt .phone-wrapper{animation:anim-tilt 4s ease-in-out infinite}
+@keyframes anim-tilt{
+  0%,100%{transform:rotateY(-32deg) rotateX(6deg) translateY(0)}
+  50%    {transform:rotateY(32deg) rotateX(-6deg) translateY(-10px)}
 }
 
-/* misc */
-@keyframes orb-drift {
-  0%,100% { transform:translate(0,0) scale(1); }
-  33%     { transform:translate(-20px,30px) scale(1.08); }
-  66%     { transform:translate(14px,-14px) scale(.94); }
+.anim-orbit .phone-wrapper{animation:anim-orbit 6s linear infinite}
+@keyframes anim-orbit{
+  0%  {transform:rotateY(0deg) rotateX(10deg)}
+  100%{transform:rotateY(360deg) rotateX(10deg)}
 }
+
+.anim-rise .phone-wrapper{animation:anim-rise 1.6s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes anim-rise{
+  0%  {transform:translateY(60px) rotateX(-8deg);opacity:0}
+  100%{transform:translateY(0) rotateX(0deg);opacity:1}
+}
+
+.anim-pulse .phone-wrapper{animation:anim-pulse 2.2s ease-in-out infinite}
+@keyframes anim-pulse{
+  0%,100%{transform:scale(1) rotateY(0)}
+  50%    {transform:scale(1.06) rotateY(6deg)}
+}
+
+.anim-spotlight .phone-wrapper{animation:anim-spotlight 5s ease-in-out infinite}
+@keyframes anim-spotlight{
+  0%,100%{transform:rotateY(-8deg) rotateX(4deg)}
+  33%    {transform:rotateY(0deg) rotateX(0deg) scale(1.04)}
+  66%    {transform:rotateY(8deg) rotateX(-4deg)}
+}
+
+/* ── Bottom controls ── */
+.controls{
+  display:flex;align-items:center;gap:12px;
+  padding:0 20px;
+  background:rgba(12,12,12,.95);
+  border-top:1px solid rgba(255,255,255,.07);
+  overflow-x:auto;
+}
+.ctrl-tabs{display:flex;gap:4px;flex-shrink:0}
+.ctrl-tab{
+  padding:7px 14px;border-radius:10px;font-size:.78rem;font-weight:600;
+  color:rgba(255,255,255,.45);background:none;
+  transition:all .15s;
+}
+.ctrl-tab.active{background:rgba(255,255,255,.1);color:#fff}
+.ctrl-sep{width:1px;height:32px;background:rgba(255,255,255,.08);flex-shrink:0}
+
+/* Scene controls */
+.ctrl-panels{display:flex;gap:0;flex:1}
+.ctrl-panel{display:none;align-items:center;gap:10px;flex:1}
+.ctrl-panel.active{display:flex}
+
+/* Background swatches */
+.bg-swatches{display:flex;gap:6px;align-items:center}
+.bg-swatch{
+  width:30px;height:30px;border-radius:8px;cursor:pointer;flex-shrink:0;
+  border:2px solid transparent;transition:all .15s;
+}
+.bg-swatch:hover{transform:scale(1.1)}
+.bg-swatch.active{border-color:#FFB162;box-shadow:0 0 0 1px rgba(255,177,98,.3)}
+
+/* Phone color swatches */
+.phone-swatches{display:flex;gap:6px;align-items:center}
+.ph-swatch{
+  width:24px;height:24px;border-radius:50%;cursor:pointer;flex-shrink:0;
+  border:2px solid transparent;transition:all .15s;
+}
+.ph-swatch.active{border-color:#FFB162}
+
+/* Intensity slider */
+.ctrl-label{font-size:.72rem;color:rgba(255,255,255,.4);white-space:nowrap;flex-shrink:0}
+input[type=range]{
+  width:100px;height:3px;-webkit-appearance:none;appearance:none;
+  background:rgba(255,255,255,.12);border-radius:99px;outline:none;flex-shrink:0;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:#FFB162;border:2px solid #1a1a1a;
+  box-shadow:0 2px 6px rgba(255,177,98,.4);cursor:pointer;
+}
+
+/* Recording overlay */
+.rec-timer{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.7);backdrop-filter:blur(10px);
+  border:1px solid rgba(220,60,60,.3);border-radius:20px;
+  padding:5px 14px;font-size:.8rem;font-weight:700;color:#ff6b6b;
+  display:none;z-index:100;align-items:center;gap:6px;
+}
+.rec-timer.show{display:flex}
+.rec-timer .dot{width:7px;height:7px;border-radius:50%;background:#ff4444;animation:rec-blink .6s ease-in-out infinite}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+  background:rgba(30,30,30,.95);border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(20px);border-radius:12px;padding:10px 18px;
+  font-size:.82rem;font-weight:600;color:#fff;
+  opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;
+  white-space:nowrap;
+}
+.toast.show{opacity:1}
+
+/* File input hidden */
+#fileInput{display:none}
 </style>
 </head>
 <body>
-<div class="shell">
+<div class="app">
 
-  <!-- ═══ HEADER ═══════════════════════════════ -->
-  <header class="header">
-    <div class="header-brand">
+  <!-- ═══ TOPBAR ════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="tb-brand">
       <span>⚡</span>
-      <span>Animation Studio</span>
-      <span class="header-badge">Content Market</span>
+      <span>Content Market Studio</span>
+      <span class="tb-badge">BETA</span>
     </div>
-    <div class="header-actions">
-      <button onclick="replayAll()"
-        style="background:rgba(238,233,223,.08);border:1px solid var(--border);
-               color:var(--muted2);border-radius:10px;padding:7px 14px;font-size:.8rem;font-weight:600;
-               transition:background .15s,color .15s;"
-        onmouseover="this.style.background='rgba(238,233,223,.13)';this.style.color='#fff'"
-        onmouseout="this.style.background='rgba(238,233,223,.08)';this.style.color='var(--muted2)'">
-        ↺ Replay
+    <div class="tb-actions">
+      <button class="tb-btn tb-btn-ghost" id="btnUpload" onclick="document.getElementById('fileInput').click()">
+        ↑ Screenshot laden
+      </button>
+      <button class="tb-btn tb-btn-record" id="btnRecord" onclick="toggleRecord()">
+        <span class="dot"></span>
+        <span id="btnRecordLabel">Aufnehmen</span>
+      </button>
+      <button class="tb-btn tb-btn-export" onclick="exportPNG()">
+        ↓ Export PNG
       </button>
     </div>
   </header>
 
-  <!-- ═══ SIDEBAR ══════════════════════════════ -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-section-title">Animationen</div>
+  <!-- ═══ MAIN ══════════════════════════════════════ -->
+  <div class="main">
 
-    <button class="nav-item active" data-module="vy" onclick="switchModule('vy',this)">
-      <span class="nav-icon">⚡</span>
-      <span>Vy Companion</span>
-    </button>
-    <button class="nav-item" data-module="onboarding" onclick="switchModule('onboarding',this)">
-      <span class="nav-icon">🚀</span>
-      <span>Onboarding Overlay</span>
-    </button>
-    <button class="nav-item" data-module="page" onclick="switchModule('page',this)">
-      <span class="nav-icon">📄</span>
-      <span>Page Enter</span>
-    </button>
-    <button class="nav-item" data-module="price" onclick="switchModule('price',this)">
-      <span class="nav-icon">📈</span>
-      <span>Price Flash</span>
-    </button>
-    <button class="nav-item" data-module="buttons" onclick="switchModule('buttons',this)">
-      <span class="nav-icon">👆</span>
-      <span>Buttons & Ripple</span>
-    </button>
-    <button class="nav-item" data-module="cards" onclick="switchModule('cards',this)">
-      <span class="nav-icon">🃏</span>
-      <span>Card Hover</span>
-    </button>
+    <!-- Sidebar: presets -->
+    <aside class="sidebar">
+      <div class="sb-section">Animationen</div>
+      <div id="presetList"></div>
+    </aside>
 
-    <div class="sidebar-section-title" style="margin-top:12px;">Schnell-Presets</div>
-    <button class="nav-item" onclick="applyPreset('subtle')" style="font-size:.8rem;">
-      <span class="nav-icon">🌿</span><span>Subtle (langsam)</span>
-    </button>
-    <button class="nav-item" onclick="applyPreset('default')" style="font-size:.8rem;">
-      <span class="nav-icon">✨</span><span>Default</span>
-    </button>
-    <button class="nav-item" onclick="applyPreset('energetic')" style="font-size:.8rem;">
-      <span class="nav-icon">⚡</span><span>Energetic (schnell)</span>
-    </button>
-  </aside>
+    <!-- Stage: canvas bg + phone -->
+    <main class="stage" id="stage">
+      <canvas id="bgCanvas"></canvas>
 
-  <!-- ═══ PREVIEW ═══════════════════════════════ -->
-  <main class="preview" id="preview">
-    <div class="preview-header">
-      <div>
-        <div class="preview-title" id="previewTitle">Vy Companion</div>
-        <div class="preview-sub" id="previewSub">Floating Glow &amp; Ring Pulse</div>
+      <div class="rec-timer" id="recTimer">
+        <span class="dot"></span>
+        <span id="recTime">0:00</span>
       </div>
-      <div id="previewTag"
-        style="font-size:.68rem;font-weight:700;color:var(--accent);background:rgba(255,177,98,.1);
-               border-radius:20px;padding:4px 10px;border:1px solid rgba(255,177,98,.2);">
-        Live
-      </div>
-    </div>
-    <div class="preview-body">
-      <div class="preview-inner" id="previewInner">
-        <!-- populated by JS -->
-      </div>
-    </div>
-  </main>
 
-  <!-- ═══ CONTROLS ══════════════════════════════ -->
-  <aside class="controls">
-    <div class="controls-header" id="ctrlTitle">Vy Einstellungen</div>
-    <div class="controls-body" id="ctrlBody">
-      <!-- populated by JS -->
-    </div>
-  </aside>
-
-</div>
-
-<script>
-/* ════════════════════════════════════════════════
-   ANIMATION MODULES — definitions
-   ════════════════════════════════════════════════ */
-const MODULES = {
-
-  vy: {
-    title: 'Vy Companion',
-    sub:   'Floating Glow & Ring Pulse',
-    ctrl:  'Vy Einstellungen',
-    preview() {
-      return `
-      <div class="pv-alert">🎁 Tagesbonus: <strong>+50 XP</strong> kassiert!</div>
-      <div class="pv-vy-row">
-        <div class="pv-vy-wrap" style="--pv-vy-size:72px">
-          <div class="pv-vy-ring pv-vy-ring-1"></div>
-          <div class="pv-vy-ring pv-vy-ring-2"></div>
-          <div class="pv-vy-core" style="--pv-vy-size:72px;font-size:2rem;">⚡</div>
-        </div>
-        <div class="pv-bubble">
-          <div class="pv-bubble-name">Vy</div>
-          <div class="pv-bubble-text">
-            Ich spür's in meinen Flammen. <strong>Diese Videos heute.</strong><br>
-            Limitierte Anteile — wer zuerst kommt.
+      <div class="phone-scene" id="phoneScene">
+        <div class="phone-wrapper" id="phoneWrapper">
+          <div class="phone-body">
+            <div class="phone-island"></div>
+            <!-- Screen -->
+            <div class="phone-screen" id="phoneScreen">
+              <img id="userImg" alt=""/>
+              <div class="drop-zone" id="dropZone">
+                <div class="drop-icon">+</div>
+                <div class="drop-label">Screenshot<br>hier droppen</div>
+              </div>
+            </div>
+            <!-- Buttons -->
+            <div class="phone-btn phone-btn-vol-up"></div>
+            <div class="phone-btn phone-btn-vol-dn"></div>
+            <div class="phone-btn phone-btn-power"></div>
+            <!-- Home bar -->
+            <div class="phone-home"></div>
           </div>
         </div>
       </div>
-      <div style="background:rgba(238,233,223,.06);border:1px solid var(--border);border-radius:14px;padding:12px 14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <span style="font-size:.72rem;color:var(--accent);font-weight:700;">⚡ Level 4 · Analyst</span>
-          <span style="font-size:.68rem;color:var(--muted);">320 / 500 XP</span>
-        </div>
-        <div class="pv-xp-bar-bg">
-          <div class="pv-xp-bar-fill" style="--xp-target:64%"></div>
-        </div>
-      </div>`;
-    },
-    controls() {
-      return buildControls([
-        { type:'range', id:'vyDur',   label:'Float-Dauer',  min:.8, max:5,   step:.1, token:'--anim-dur',       unit:'s', init:2.4 },
-        { type:'range', id:'vyFloat', label:'Float-Höhe',   min:2,  max:14,  step:.5, token:'--anim-vy-float',  unit:'px',init:5 },
-        { type:'range', id:'vyGlow',  label:'Glow Größe',   min:6,  max:60,  step:2,  token:'--anim-glow-size', unit:'px',init:28 },
-        { type:'range', id:'vyRing',  label:'Ring Scale',   min:1.05,max:1.5,step:.01,token:'--anim-ring-scale',unit:'×', init:1.22 },
-        { type:'color', id:'vyCol',   label:'Accent Farbe', token:'--primary-color', init:'#FFB162' },
-        { type:'divider' },
-        { type:'export', tokens:['--anim-dur','--anim-vy-float','--anim-glow-size','--anim-ring-scale','--primary-color'] }
-      ]);
-    }
-  },
 
-  onboarding: {
-    title: 'Onboarding Overlay',
-    sub:   'Slide Transitions & Backdrop',
-    ctrl:  'Onboarding Einstellungen',
-    preview() {
-      return `
-      <div class="pv-ob-wrap" id="pvOb">
-        <div class="pv-vy-wrap" style="--pv-vy-size:68px;margin:0 auto 16px">
-          <div class="pv-vy-ring pv-vy-ring-1"></div>
-          <div class="pv-vy-ring pv-vy-ring-2"></div>
-          <div class="pv-vy-core" style="--pv-vy-size:68px;font-size:1.8rem;">⚡</div>
-        </div>
-        <div class="pv-ob-logo">Content<span> Market</span></div>
-        <div class="pv-ob-body" id="pvObText" style="margin:0 auto;max-width:260px;"></div>
-        <div class="pv-ob-dots" style="margin-top:16px;">
-          <div class="pv-ob-dot on" id="pvD0"></div>
-          <div class="pv-ob-dot" id="pvD1"></div>
-          <div class="pv-ob-dot" id="pvD2"></div>
-        </div>
-        <div style="margin-top:16px;display:flex;justify-content:flex-end;">
-          <button onclick="pvObNext()" style="background:var(--primary-color);color:#1B2632;border:none;border-radius:10px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer;position:relative;overflow:hidden;">
-            Weiter → <span class="shimmer-layer"></span>
-          </button>
-        </div>
-      </div>`;
-    },
-    controls() {
-      return buildControls([
-        { type:'range', id:'obDur',   label:'Slide Duration',  min:.2, max:1.2, step:.05, token:'--anim-dur',       unit:'s', init:.5, cssVar:'--anim-slide-dur' },
-        { type:'range', id:'obSlideX',label:'Slide Offset X',  min:20, max:100, step:4,   token:'--anim-slide-x',   unit:'px',init:56 },
-        { type:'color', id:'obPrim',  label:'Accent Farbe',    token:'--primary-color', init:'#FFB162' },
-        { type:'divider' },
-        { type:'export', tokens:['--anim-slide-x','--primary-color'] }
-      ]);
-    }
-  },
+    </main>
+  </div>
 
-  page: {
-    title: 'Page Enter',
-    sub:   'Staggered List Entrance',
-    ctrl:  'Page Enter Einstellungen',
-    preview() {
-      const rows = ['MrBeast — Neue Challenge', 'Veritasium — Quantum', 'MKBHD — Flagship Review'].map((t,i) => `
-      <div class="pv-page-demo-row" style="animation-delay:${.04+i*.07}s">
-        <div class="pv-thumb"></div>
-        <div class="pv-lines">
-          <div class="pv-line" style="width:${70-i*8}%"></div>
-          <div class="pv-line" style="width:${44-i*5}%;opacity:.4;margin-top:4px;"></div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-size:.9rem;font-weight:700;">$${(4.20+i*1.15).toFixed(2)}</div>
-          <div class="pv-pct ${i===1?'pv-dn':'pv-up'}">${i===1?'▼ 2.1%':'▲ '+(8.4-i*2.1).toFixed(1)+'%'}</div>
-        </div>
-      </div>`).join('');
-      return `<div class="pv-page-demo" id="pvPage">${rows}</div>`;
-    },
-    controls() {
-      return buildControls([
-        { type:'range', id:'pgDur',  label:'Einblenddauer',  min:.15,max:1,   step:.05, token:'--anim-page-dur', unit:'s', init:.35, cssVar:'--anim-page-dur' },
-        { type:'range', id:'pgY',    label:'Versatz Y',      min:4,  max:40,  step:2,   token:'--anim-page-y',   unit:'px',init:14 },
-        { type:'divider' },
-        { type:'export', tokens:['--anim-page-y'] }
-      ]);
-    }
-  },
+  <!-- ═══ BOTTOM CONTROLS ═══════════════════════════ -->
+  <div class="controls">
+    <div class="ctrl-tabs">
+      <button class="ctrl-tab active" onclick="switchCtrl('scene',this)">🎨 Szene</button>
+      <button class="ctrl-tab" onclick="switchCtrl('device',this)">📱 Device</button>
+      <button class="ctrl-tab" onclick="switchCtrl('light',this)">✨ Licht</button>
+    </div>
+    <div class="ctrl-sep"></div>
 
-  price: {
-    title: 'Price Flash',
-    sub:   'Up/Down Highlight on Price Change',
-    ctrl:  'Price Flash Einstellungen',
-    preview() {
-      return `
-      <div style="margin-bottom:14px;font-size:.72rem;color:var(--muted);text-align:center;">Klicke auf eine Karte um den Flash zu triggern</div>
-      <div class="pv-price-wrap" id="pvPriceWrap">
-        <div class="pv-price-card" onclick="triggerFlash(this,'up')">
-          <div class="pv-price-label">MrBeast</div>
-          <div class="pv-price-num" id="pvPUp">$8.42</div>
-          <div class="pv-pct pv-up">▲ 12.4%</div>
-        </div>
-        <div class="pv-price-card" onclick="triggerFlash(this,'down')">
-          <div class="pv-price-label">TikTok Trends</div>
-          <div class="pv-price-num" id="pvPDn">$2.17</div>
-          <div class="pv-pct pv-dn">▼ 5.8%</div>
-        </div>
-      </div>`;
-    },
-    controls() {
-      return buildControls([
-        { type:'range', id:'flDur',  label:'Flash Dauer',   min:.2, max:3,  step:.1,  token:null, unit:'s', init:.9,  cssVar:'--anim-flash-dur' },
-        { type:'color', id:'flUp',   label:'Flash Up Farbe',token:'--anim-flash-up',  init:'rgba(76,175,130,.32)',  isRgba:true, channel:'gain-color' },
-        { type:'color', id:'flDn',   label:'Flash Down Farbe',token:'--anim-flash-down',init:'rgba(163,81,57,.32)', isRgba:true, channel:'sell' },
-        { type:'range', id:'flInt',  label:'Intensität',    min:.05,max:.7,  step:.05, token:null, unit:'', init:.32, callback:'flashIntensity' },
-        { type:'divider' },
-        { type:'export', tokens:['--anim-flash-up','--anim-flash-down'] }
-      ]);
-    }
-  },
+    <div class="ctrl-panels">
 
-  buttons: {
-    title: 'Buttons & Ripple',
-    sub:   'Shimmer, Ripple & Press Feel',
-    ctrl:  'Button Einstellungen',
-    preview() {
-      return `
-      <div class="pv-btn-grid">
-        <button class="pv-btn pv-btn-primary" onclick="triggerRipple(event,this)">
-          Los geht's →
-          <span class="shimmer-layer"></span>
-        </button>
-        <button class="pv-btn pv-btn-buy" onclick="triggerRipple(event,this)">
-          Kaufen &nbsp;<span style="font-size:.68rem;opacity:.7;">+15 XP</span>
-        </button>
-        <button class="pv-btn pv-btn-sell" onclick="triggerRipple(event,this)">
-          Verkaufen
-        </button>
-      </div>`;
-    },
-    controls() {
-      return buildControls([
-        { type:'range', id:'shSpd',  label:'Shimmer Speed', min:.5, max:5,  step:.1,  token:'--anim-shimmer-spd', unit:'s', init:2.2 },
-        { type:'color', id:'btnCol', label:'Primary Farbe', token:'--primary-color', init:'#FFB162' },
-        { type:'color', id:'buyCol', label:'Buy Farbe',     token:'--gain-color',    init:'#4CAF82' },
-        { type:'divider' },
-        { type:'export', tokens:['--anim-shimmer-spd','--primary-color','--gain-color'] }
-      ]);
-    }
-  },
+      <!-- Scene panel -->
+      <div class="ctrl-panel active" id="panel-scene">
+        <span class="ctrl-label">Hintergrund</span>
+        <div class="bg-swatches" id="bgSwatches"></div>
+        <div class="ctrl-sep" style="margin:0 4px"></div>
+        <span class="ctrl-label">Intensität</span>
+        <input type="range" id="bokehIntensity" min="0" max="100" value="70"
+          oninput="bokehConfig.intensity=this.value/100">
+        <span class="ctrl-label" style="margin-left:8px">Partikel</span>
+        <input type="range" id="bokehCount" min="0" max="100" value="50"
+          oninput="bokehConfig.count=Math.round(this.value)">
+      </div>
 
-  cards: {
-    title: 'Card Hover',
-    sub:   'Lift, Shadow & Bounce-in',
-    ctrl:  'Card Einstellungen',
-    preview() {
-      const cards = [
-        { emoji:'🎮', price:'$6.40', pct:'+18.2%', up:true },
-        { emoji:'🎵', price:'$3.15', pct:'-4.1%',  up:false },
-        { emoji:'📺', price:'$9.88', pct:'+31.5%', up:true },
-        { emoji:'🍕', price:'$1.22', pct:'+7.0%',  up:true },
-      ].map((c,i) => `
-      <div class="pv-card pv-card-bounce" style="animation-delay:${i*.08}s">
-        <div class="pv-card-img" style="display:flex;align-items:center;justify-content:center;font-size:1.8rem;">${c.emoji}</div>
-        <div class="pv-card-price">${c.price}</div>
-        <div class="pv-card-pct ${c.up?'pv-up':'pv-dn'}">${c.pct}</div>
-      </div>`).join('');
-      return `<div class="pv-card-grid" id="pvCards">${cards}</div>`;
-    },
-    controls() {
-      return buildControls([
-        { type:'range', id:'cdBnc',  label:'Bounce Scale',  min:1, max:1.2, step:.01, token:'--anim-bounce-s',  unit:'×', init:1.05 },
-        { type:'range', id:'cdBDur', label:'Bounce Dauer',  min:.2,max:1.2, step:.05, token:null, unit:'s', init:.5, cssVar:'--anim-bounce-dur' },
-        { type:'divider' },
-        { type:'export', tokens:['--anim-bounce-s'] }
-      ]);
-    }
-  }
-};
+      <!-- Device panel -->
+      <div class="ctrl-panel" id="panel-device">
+        <span class="ctrl-label">Farbe</span>
+        <div class="phone-swatches" id="phoneSwatches"></div>
+        <div class="ctrl-sep" style="margin:0 8px"></div>
+        <span class="ctrl-label">Größe</span>
+        <input type="range" id="phoneScale" min="60" max="130" value="100"
+          oninput="document.getElementById('phoneScene').style.transform='scale('+this.value/100+')'">
+        <span class="ctrl-label" style="margin-left:8px">Neigung</span>
+        <input type="range" id="phoneTilt" min="-60" max="60" value="0"
+          oninput="extraTilt=this.value">
+      </div>
 
-/* ════════════════════════════════════════════════
-   CONTROL BUILDER
-   ════════════════════════════════════════════════ */
-function buildControls(defs) {
-  return defs.map(d => {
-    if (d.type === 'divider') return '<hr class="ctrl-divider">';
+      <!-- Light panel -->
+      <div class="ctrl-panel" id="panel-light">
+        <span class="ctrl-label">Bokeh Größe</span>
+        <input type="range" id="bokehSize" min="20" max="200" value="80"
+          oninput="bokehConfig.maxR=this.value">
+        <span class="ctrl-label" style="margin-left:8px">Schärfe</span>
+        <input type="range" id="bokehBlur" min="0" max="40" value="12"
+          oninput="bokehConfig.blur=this.value">
+        <span class="ctrl-label" style="margin-left:8px">Geschwindigkeit</span>
+        <input type="range" id="bokehSpeed" min="1" max="20" value="6"
+          oninput="bokehConfig.speed=this.value/10">
+      </div>
 
-    if (d.type === 'export') {
-      return `
-      <div class="ctrl-group">
-        <div class="ctrl-label">CSS Export</div>
-        <button class="export-btn" onclick="exportCSS(${JSON.stringify(d.tokens)})">
-          <span>CSS kopieren</span>
-          <span>↗</span>
-          <span class="shimmer"></span>
-        </button>
-        <div class="copy-feedback" id="copyFeedback">✓ In die Zwischenablage kopiert!</div>
-        <textarea class="css-out" id="cssOut" readonly placeholder="CSS erscheint hier…"></textarea>
-      </div>`;
-    }
+    </div>
+  </div>
+</div>
 
-    if (d.type === 'range') {
-      const pv = d.init;
-      return `
-      <div class="ctrl-group">
-        <label class="ctrl-label" for="${d.id}">
-          ${d.label}
-          <span class="ctrl-val" id="${d.id}Val">${pv}${d.unit}</span>
-        </label>
-        <input type="range" id="${d.id}" min="${d.min}" max="${d.max}" step="${d.step}" value="${pv}"
-          oninput="handleRange('${d.id}','${d.token||d.cssVar||''}','${d.unit}','${d.callback||''}',this.value)">
-      </div>`;
-    }
+<input type="file" id="fileInput" accept="image/*"/>
+<div class="toast" id="toast"></div>
 
-    if (d.type === 'color') {
-      return `
-      <div class="ctrl-group">
-        <div class="ctrl-label">${d.label}</div>
-        <div class="color-row">
-          <input type="color" id="${d.id}Pick" value="${d.init.startsWith('rgba')?'#4CAF82':d.init}"
-            oninput="handleColor('${d.id}','${d.token}',this.value)">
-          <input type="text" class="color-hex" id="${d.id}Hex" value="${d.init}"
-            oninput="handleColorHex('${d.id}','${d.token}',this.value)">
-        </div>
-      </div>`;
-    }
-
-    return '';
-  }).join('');
-}
-
-/* ════════════════════════════════════════════════
-   TOKEN MANAGEMENT
-   ════════════════════════════════════════════════ */
-const root = document.documentElement;
-
-function setToken(token, value) {
-  if (!token) return;
-  root.style.setProperty(token, value);
-}
-
-function handleRange(id, token, unit, cb, val) {
-  const numVal = parseFloat(val);
-  document.getElementById(id + 'Val').textContent = numVal + unit;
-  setToken(token, numVal + (unit === '×' || unit === '' ? '' : unit));
-  if (cb && window[cb]) window[cb](numVal);
-}
-
-function handleColor(id, token, hex) {
-  document.getElementById(id + 'Hex').value = hex;
-  setToken(token, hex);
-}
-
-function handleColorHex(id, token, val) {
-  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-    try { document.getElementById(id + 'Pick').value = val; } catch(e){}
-    setToken(token, val);
-  }
-}
-
-function flashIntensity(val) {
-  const gainHex = getComputedStyle(root).getPropertyValue('--gain-color').trim() || '#4CAF82';
-  const sellHex = '#A35139';
-  setToken('--anim-flash-up',   hexToRgba(gainHex, val));
-  setToken('--anim-flash-down', hexToRgba(sellHex, val));
-}
-
-function hexToRgba(hex, a) {
-  hex = hex.replace('#','');
-  const r = parseInt(hex.slice(0,2),16);
-  const g = parseInt(hex.slice(2,4),16);
-  const b = parseInt(hex.slice(4,6),16);
-  return `rgba(${r},${g},${b},${a})`;
-}
-
-/* ════════════════════════════════════════════════
+<script>
+/* ════════════════════════════════════════════════════
    PRESETS
-   ════════════════════════════════════════════════ */
-const PRESETS = {
-  subtle:    { '--anim-dur':'3.8s','--anim-vy-float':'3px','--anim-glow-size':'16px','--anim-page-y':'8px' },
-  default:   { '--anim-dur':'2.4s','--anim-vy-float':'5px','--anim-glow-size':'28px','--anim-page-y':'14px' },
-  energetic: { '--anim-dur':'1.4s','--anim-vy-float':'8px','--anim-glow-size':'44px','--anim-page-y':'22px' },
-};
-
-function applyPreset(name) {
-  const p = PRESETS[name];
-  if (!p) return;
-  Object.entries(p).forEach(([k,v]) => setToken(k, v));
-  // Sync sliders
-  document.querySelectorAll('input[type=range]').forEach(el => {
-    const token = el.getAttribute('oninput').match(/'(--[^']+)'/)?.[1];
-    if (token && p[token]) {
-      el.value = parseFloat(p[token]);
-      el.dispatchEvent(new Event('input'));
-    }
-  });
-  replayAll();
-}
-
-/* ════════════════════════════════════════════════
-   MODULE SWITCHING
-   ════════════════════════════════════════════════ */
-let currentModule = 'vy';
-
-function switchModule(name, btn) {
-  document.querySelectorAll('.nav-item[data-module]').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  currentModule = name;
-  const mod = MODULES[name];
-  document.getElementById('previewTitle').textContent = mod.title;
-  document.getElementById('previewSub').textContent   = mod.sub;
-  document.getElementById('ctrlTitle').textContent    = mod.ctrl;
-  document.getElementById('previewInner').innerHTML   = mod.preview();
-  document.getElementById('ctrlBody').innerHTML       = mod.controls();
-
-  // Init typewriter if onboarding
-  if (name === 'onboarding') {
-    pvObTypeInit();
-    pvObStep = 0;
-    pvObUpdateDots();
-  }
-}
-
-/* ════════════════════════════════════════════════
-   EXPORT CSS
-   ════════════════════════════════════════════════ */
-function exportCSS(tokens) {
-  const lines = tokens.map(t => {
-    const v = getComputedStyle(root).getPropertyValue(t).trim();
-    return `  ${t}: ${v};`;
-  });
-  const css = `:root {\n${lines.join('\n')}\n}`;
-  const el = document.getElementById('cssOut');
-  if (el) { el.value = css; el.select(); }
-  navigator.clipboard.writeText(css).catch(() => {});
-  const fb = document.getElementById('copyFeedback');
-  if (fb) { fb.classList.add('show'); setTimeout(() => fb.classList.remove('show'), 2000); }
-}
-
-/* ════════════════════════════════════════════════
-   RIPPLE EFFECT
-   ════════════════════════════════════════════════ */
-function triggerRipple(e, btn) {
-  const r = document.createElement('span');
-  const rect = btn.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  r.style.cssText = `
-    position:absolute;width:${size}px;height:${size}px;
-    left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px;
-    background:rgba(255,255,255,.28);border-radius:50%;transform:scale(0);
-    animation:rpl .55s ease-out forwards;pointer-events:none;`;
-  btn.style.position = 'relative';
-  btn.appendChild(r);
-  setTimeout(() => r.remove(), 560);
-}
-
-/* ════════════════════════════════════════════════
-   PRICE FLASH TRIGGER
-   ════════════════════════════════════════════════ */
-function triggerFlash(card, dir) {
-  const num = card.querySelector('.pv-price-num');
-  if (!num) return;
-  num.classList.remove('pv-flash-up','pv-flash-down');
-  void num.offsetWidth; // reflow
-  num.classList.add(dir === 'up' ? 'pv-flash-up' : 'pv-flash-down');
-}
-
-/* ════════════════════════════════════════════════
-   ONBOARDING PREVIEW LOGIC
-   ════════════════════════════════════════════════ */
-let pvObStep = 0;
-const pvObTexts = [
-  'Ich bin Vy — dein Begleiter.\nHier investierst du in YouTube-Videos wie in Aktien.',
-  'Video geht viral → Portfolio steigt.\nKaufe Anteile. Verkaufe wenn der Kurs stimmt.',
-  'Starte mit $1.000 Startkapital\nund einem kostenlosen Gratis-Anteil.',
+   ════════════════════════════════════════════════════ */
+const PRESETS = [
+  { id:'float',     name:'Float',     dur:'3.2s', free:true  },
+  { id:'tilt',      name:'Tilt',      dur:'4.0s', free:false },
+  { id:'orbit',     name:'Orbit',     dur:'6.0s', free:false },
+  { id:'rise',      name:'Rise',      dur:'1.6s', free:true  },
+  { id:'pulse',     name:'Pulse',     dur:'2.2s', free:false },
+  { id:'spotlight', name:'Spotlight', dur:'5.0s', free:false },
 ];
 
-function pvObTypeInit() {
-  pvObStep = 0;
-  pvObUpdateDots();
-  const el = document.getElementById('pvObText');
-  if (!el) return;
-  typeWritePreview(el, pvObTexts[0]);
+const PHONE_COLORS = [
+  { name:'Titan Natur', body:'linear-gradient(160deg,#2a2a2a,#1a1a1a)', frame:'#3d3d3d' },
+  { name:'Titan Schwarz',body:'linear-gradient(160deg,#111,#0a0a0a)',   frame:'#2a2a2a' },
+  { name:'Titan Weiß',  body:'linear-gradient(160deg,#ddd,#c0c0c0)',    frame:'#b0b0b0' },
+  { name:'Titan Blau',  body:'linear-gradient(160deg,#1a2a3a,#0f1a2a)', frame:'#2a3a4a' },
+];
+
+const BG_THEMES = [
+  {
+    name:'Gold Bokeh',
+    bg:'radial-gradient(ellipse 80% 60% at 40% 30%,#8B5A00 0%,#5a3300 40%,#2a1a00 70%,#0f0a00 100%)',
+    colors:['rgba(255,177,98,VAL)','rgba(200,120,40,VAL)','rgba(255,220,120,VAL)'],
+  },
+  {
+    name:'Navy Deep',
+    bg:'radial-gradient(ellipse 80% 60% at 30% 40%,#1B2632 0%,#0f1922 50%,#060d14 100%)',
+    colors:['rgba(100,160,220,VAL)','rgba(255,177,98,VAL)','rgba(76,175,130,VAL)'],
+  },
+  {
+    name:'Midnight',
+    bg:'radial-gradient(ellipse 70% 50% at 50% 50%,#1a1a2e 0%,#0d0d1a 60%,#050508 100%)',
+    colors:['rgba(120,80,220,VAL)','rgba(200,80,180,VAL)','rgba(80,120,255,VAL)'],
+  },
+  {
+    name:'Sunset',
+    bg:'radial-gradient(ellipse 80% 60% at 60% 40%,#4a1028 0%,#2a0a18 50%,#0f0508 100%)',
+    colors:['rgba(255,100,80,VAL)','rgba(255,160,60,VAL)','rgba(200,60,100,VAL)'],
+  },
+  {
+    name:'Forest',
+    bg:'radial-gradient(ellipse 70% 55% at 40% 50%,#0a2010 0%,#051208 60%,#020804 100%)',
+    colors:['rgba(60,180,100,VAL)','rgba(100,220,140,VAL)','rgba(40,120,80,VAL)'],
+  },
+];
+
+/* ════════════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════════════ */
+let currentPreset   = 'float';
+let currentBgIdx    = 0;
+let currentPhoneIdx = 0;
+let uploadedImage   = null;
+let extraTilt       = 0;
+
+const bokehConfig = {
+  intensity: .7,
+  count:     50,
+  maxR:      80,
+  blur:      12,
+  speed:     .6,
+};
+
+/* ════════════════════════════════════════════════════
+   BUILD PRESETS SIDEBAR
+   ════════════════════════════════════════════════════ */
+const presetList = document.getElementById('presetList');
+PRESETS.forEach(p => {
+  const el = document.createElement('button');
+  el.className = 'preset-item' + (p.id === currentPreset ? ' active' : '');
+  el.dataset.id = p.id;
+
+  // Mini animated thumbnail
+  const animCSS = p.id === 'float'     ? 'animation:thumb-float 3s ease-in-out infinite'
+                : p.id === 'tilt'      ? 'animation:thumb-tilt 3s ease-in-out infinite'
+                : p.id === 'orbit'     ? 'animation:thumb-orbit 4s linear infinite'
+                : p.id === 'rise'      ? 'animation:thumb-rise 1.5s cubic-bezier(.22,1,.36,1) forwards'
+                : p.id === 'pulse'     ? 'animation:thumb-pulse 2s ease-in-out infinite'
+                :                        'animation:thumb-spot 4s ease-in-out infinite';
+
+  el.innerHTML = `
+    <div class="preset-thumb">
+      <div style="perspective:200px;perspective-origin:50% 50%;">
+        <div class="preset-thumb-inner" style="${animCSS}"></div>
+      </div>
+      ${p.free ? '<div class="preset-badge badge-free">FREE</div>' : ''}
+    </div>
+    <div class="preset-meta">
+      <span class="preset-name">${p.name}</span>
+      <span class="preset-dur">${p.dur}</span>
+    </div>`;
+
+  el.addEventListener('click', () => selectPreset(p.id, el));
+  presetList.appendChild(el);
+});
+
+/* Thumbnail keyframes */
+const thumbStyle = document.createElement('style');
+thumbStyle.textContent = `
+@keyframes thumb-float { 0%,100%{transform:translateY(0) rotateY(-8deg)} 50%{transform:translateY(-6px) rotateY(8deg)} }
+@keyframes thumb-tilt  { 0%,100%{transform:rotateY(-30deg)} 50%{transform:rotateY(30deg)} }
+@keyframes thumb-orbit { 0%{transform:rotateY(0)} 100%{transform:rotateY(360deg)} }
+@keyframes thumb-rise  { 0%{transform:translateY(12px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+@keyframes thumb-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1) rotateY(8deg)} }
+@keyframes thumb-spot  { 0%,100%{transform:rotateY(-10deg)} 50%{transform:rotateY(10deg) scale(1.05)} }
+`;
+document.head.appendChild(thumbStyle);
+
+/* ════════════════════════════════════════════════════
+   SELECT PRESET
+   ════════════════════════════════════════════════════ */
+function selectPreset(id, btn) {
+  document.querySelectorAll('.preset-item').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  currentPreset = id;
+  const pw = document.getElementById('phoneWrapper');
+  pw.className = 'phone-wrapper';
+  // Force reflow for rise animation
+  void pw.offsetWidth;
+  pw.className = 'phone-wrapper anim-' + id;
 }
 
-function pvObNext() {
-  pvObStep = (pvObStep + 1) % 3;
-  pvObUpdateDots();
-  const el = document.getElementById('pvObText');
-  if (!el) return;
-  el.style.opacity = '0';
-  el.style.transform = 'translateX(24px)';
-  setTimeout(() => {
-    typeWritePreview(el, pvObTexts[pvObStep]);
-    el.style.transition = 'opacity .35s,transform .35s';
-    el.style.opacity = '1';
-    el.style.transform = 'none';
-    setTimeout(() => { el.style.transition = ''; }, 360);
-  }, 200);
-}
+// Init
+document.getElementById('phoneWrapper').classList.add('anim-' + currentPreset);
 
-function pvObUpdateDots() {
-  [0,1,2].forEach(i => {
-    const d = document.getElementById('pvD'+i);
-    if (d) d.classList.toggle('on', i === pvObStep);
+/* ════════════════════════════════════════════════════
+   BACKGROUND SWATCHES
+   ════════════════════════════════════════════════════ */
+const bgSwatches = document.getElementById('bgSwatches');
+BG_THEMES.forEach((t, i) => {
+  const el = document.createElement('div');
+  el.className = 'bg-swatch' + (i === 0 ? ' active' : '');
+  el.title = t.name;
+  el.style.background = t.bg;
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    currentBgIdx = i;
+    rebuildBokeh();
   });
+  bgSwatches.appendChild(el);
+});
+
+/* ════════════════════════════════════════════════════
+   PHONE COLOR SWATCHES
+   ════════════════════════════════════════════════════ */
+const phoneSwatches = document.getElementById('phoneSwatches');
+PHONE_COLORS.forEach((c, i) => {
+  const el = document.createElement('div');
+  el.className = 'ph-swatch' + (i === 0 ? ' active' : '');
+  el.title = c.name;
+  el.style.background = c.body;
+  el.style.border = '2px solid ' + c.frame;
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.ph-swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    const body = document.querySelector('.phone-body');
+    body.style.background = c.body;
+    body.style.setProperty('box-shadow',
+      `0 0 0 1.5px ${c.frame}, 0 0 0 3px #1a1a1a, 0 0 0 4px ${c.frame},
+       0 40px 100px rgba(0,0,0,.7), 0 0 60px rgba(0,0,0,.4),
+       inset 0 1px 0 rgba(255,255,255,.12)`);
+  });
+  phoneSwatches.appendChild(el);
+});
+
+/* ════════════════════════════════════════════════════
+   BOKEH CANVAS
+   ════════════════════════════════════════════════════ */
+const canvas = document.getElementById('bgCanvas');
+const ctx    = canvas.getContext('2d');
+
+let bokehParticles = [];
+
+function rebuildBokeh() {
+  const theme = BG_THEMES[currentBgIdx];
+  bokehParticles = Array.from({ length: 80 }, (_, i) => ({
+    x:    Math.random() * canvas.width,
+    y:    Math.random() * canvas.height,
+    r:    Math.random() * bokehConfig.maxR + 10,
+    vx:  (Math.random() - .5) * .3,
+    vy:  (Math.random() - .5) * .3,
+    phase: Math.random() * Math.PI * 2,
+    colorIdx: i % theme.colors.length,
+  }));
 }
 
-window.pvObNext = pvObNext;
+function resize() {
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  rebuildBokeh();
+}
+new ResizeObserver(resize).observe(canvas);
+resize();
 
-function typeWritePreview(el, text, spd) {
-  spd = spd || 22;
-  el.innerHTML = '';
-  let i = 0;
-  clearInterval(el._tw);
-  el._tw = setInterval(() => {
-    if (i >= text.length) { clearInterval(el._tw); return; }
-    const ch = text[i++];
-    if (ch === '\n') el.innerHTML += '<br>';
-    else el.textContent += ch;
-  }, spd);
+function drawBg() {
+  const theme = BG_THEMES[currentBgIdx];
+  const w = canvas.width, h = canvas.height;
+
+  // Background gradient
+  ctx.clearRect(0, 0, w, h);
+  const grad = ctx.createRadialGradient(w*.4, h*.35, 0, w*.5, h*.5, Math.max(w,h)*.8);
+  // Parse theme bg roughly — use canvas gradient instead
+  const stops = currentBgIdx === 0 ? [['#6b4400',0],['#3d2000',.45],['#1a0d00',.75],['#080400',1]]
+              : currentBgIdx === 1 ? [['#1B2632',0],['#0f1a28',.5],['#050c14',1]]
+              : currentBgIdx === 2 ? [['#1a1a2e',0],['#0d0d1a',.6],['#050508',1]]
+              : currentBgIdx === 3 ? [['#4a1028',0],['#2a0a18',.5],['#0f0508',1]]
+              :                      [['#0a2010',0],['#051208',.6],['#020804',1]];
+  stops.forEach(([c,o]) => grad.addColorStop(o, c));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Bokeh
+  const t    = Date.now() * .001;
+  const vis  = Math.round(bokehConfig.count * .8 + 10);
+  const blur = parseFloat(bokehConfig.blur);
+  ctx.save();
+  if (blur > 0) { ctx.filter = `blur(${blur}px)`; }
+
+  for (let i = 0; i < Math.min(vis, bokehParticles.length); i++) {
+    const p = bokehParticles[i];
+    p.x += p.vx * bokehConfig.speed;
+    p.y += p.vy * bokehConfig.speed;
+    if (p.x < -200) p.x = w + 200;
+    if (p.x > w + 200) p.x = -200;
+    if (p.y < -200) p.y = h + 200;
+    if (p.y > h + 200) p.y = -200;
+
+    const alpha = (.15 + .25 * (Math.sin(t * .6 + p.phase) * .5 + .5)) * bokehConfig.intensity;
+    const r     = p.r * (1 + .12 * Math.sin(t * .4 + p.phase));
+    const colTemplate = BG_THEMES[currentBgIdx].colors[p.colorIdx];
+    const col   = colTemplate.replace('VAL', alpha.toFixed(3));
+
+    const g2 = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+    g2.addColorStop(0, col);
+    g2.addColorStop(1, col.replace(/[\d.]+\)$/, '0)'));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = g2;
+    ctx.fill();
+  }
+  ctx.restore();
 }
 
-/* ════════════════════════════════════════════════
-   REPLAY
-   ════════════════════════════════════════════════ */
-function replayAll() {
-  const pi = document.getElementById('previewInner');
-  const html = pi.innerHTML;
-  pi.innerHTML = '';
-  requestAnimationFrame(() => {
-    pi.innerHTML = html;
-    if (currentModule === 'onboarding') {
-      pvObTypeInit();
+/* ════════════════════════════════════════════════════
+   ANIMATION LOOP
+   ════════════════════════════════════════════════════ */
+function loop() {
+  drawBg();
+  requestAnimationFrame(loop);
+}
+loop();
+
+/* ════════════════════════════════════════════════════
+   IMAGE UPLOAD
+   ════════════════════════════════════════════════════ */
+const dropZone  = document.getElementById('dropZone');
+const userImg   = document.getElementById('userImg');
+const fileInput = document.getElementById('fileInput');
+
+function loadImage(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    userImg.src = e.target.result;
+    userImg.style.display = 'block';
+    dropZone.style.display = 'none';
+    uploadedImage = e.target.result;
+    toast('✓ Screenshot geladen');
+  };
+  reader.readAsDataURL(file);
+}
+
+fileInput.addEventListener('change', e => loadImage(e.target.files[0]));
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  loadImage(e.dataTransfer.files[0]);
+});
+
+// Also allow drop anywhere on stage
+const stage = document.getElementById('stage');
+stage.addEventListener('dragover', e => e.preventDefault());
+stage.addEventListener('drop', e => {
+  e.preventDefault();
+  loadImage(e.dataTransfer.files[0]);
+});
+
+/* ════════════════════════════════════════════════════
+   BOTTOM CONTROLS SWITCH
+   ════════════════════════════════════════════════════ */
+function switchCtrl(id, btn) {
+  document.querySelectorAll('.ctrl-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ctrl-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+/* ════════════════════════════════════════════════════
+   EXPORT PNG  (no external lib — canvas composite)
+   ════════════════════════════════════════════════════ */
+async function exportPNG() {
+  toast('🎨 Rendering…');
+  try {
+    // Use html2canvas if available, else fallback canvas render
+    const el = document.getElementById('stage');
+    const rect = el.getBoundingClientRect();
+    const scale = 2;
+
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width  = rect.width  * scale;
+    offCanvas.height = rect.height * scale;
+    const offCtx = offCanvas.getContext('2d');
+    offCtx.scale(scale, scale);
+
+    // 1. Draw background from main canvas
+    offCtx.drawImage(canvas, 0, 0, rect.width, rect.height);
+
+    // 2. Draw phone mockup (simplified)
+    const phoneEl   = document.querySelector('.phone-body');
+    const phoneRect = phoneEl.getBoundingClientRect();
+    const px = phoneRect.left - rect.left;
+    const py = phoneRect.top  - rect.top;
+    const pw = phoneRect.width;
+    const ph = phoneRect.height;
+
+    // Phone body
+    offCtx.save();
+    roundRect(offCtx, px, py, pw, ph, 44);
+    offCtx.fillStyle = '#1a1a1a';
+    offCtx.fill();
+    offCtx.restore();
+
+    // Screen
+    offCtx.save();
+    roundRect(offCtx, px+9, py+9, pw-18, ph-18, 36);
+    offCtx.fillStyle = '#000';
+    offCtx.fill();
+    if (uploadedImage) {
+      const img = new Image();
+      await new Promise(res => { img.onload = res; img.src = uploadedImage; });
+      offCtx.save();
+      roundRect(offCtx, px+9, py+9, pw-18, ph-18, 36);
+      offCtx.clip();
+      offCtx.drawImage(img, px+9, py+9, pw-18, ph-18);
+      offCtx.restore();
     }
-    // Re-bind onclick for flash cards (they lose event after innerHTML reset)
-  });
+    offCtx.restore();
+
+    // Dynamic island
+    offCtx.save();
+    offCtx.fillStyle = '#000';
+    offCtx.beginPath();
+    const islandX = px + pw/2 - 40, islandY = py + 13;
+    offCtx.roundRect(islandX, islandY, 80, 24, 13);
+    offCtx.fill();
+    offCtx.restore();
+
+    // Download
+    const link = document.createElement('a');
+    link.download = 'content-market-promo.png';
+    link.href = offCanvas.toDataURL('image/png');
+    link.click();
+    toast('✓ PNG gespeichert!');
+  } catch(e) {
+    toast('Export-Fehler: ' + e.message);
+  }
 }
 
-/* ════════════════════════════════════════════════
-   INIT
-   ════════════════════════════════════════════════ */
-switchModule('vy');
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+}
 
-// Ripple keyframe
-const s = document.createElement('style');
-s.textContent = '@keyframes rpl { to { transform:scale(2.4);opacity:0; } }';
-document.head.appendChild(s);
+/* ════════════════════════════════════════════════════
+   VIDEO RECORDING  (MediaRecorder on bgCanvas + phone overlay)
+   ════════════════════════════════════════════════════ */
+let isRecording = false;
+let mediaRecorder, recChunks, recStart, recInterval;
+let recCanvas, recCtx;
+
+async function toggleRecord() {
+  if (isRecording) stopRecord();
+  else             startRecord();
+}
+
+async function startRecord() {
+  isRecording = true;
+
+  // Composite canvas for recording
+  const stage   = document.getElementById('stage');
+  const stRect  = stage.getBoundingClientRect();
+
+  recCanvas = document.createElement('canvas');
+  recCanvas.width  = stRect.width;
+  recCanvas.height = stRect.height;
+  recCtx   = recCanvas.getContext('2d');
+
+  const stream  = recCanvas.captureStream(30);
+  const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+                 ? 'video/webm;codecs=vp9' : 'video/webm';
+  mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 });
+  recChunks = [];
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+  mediaRecorder.onstop = saveVideo;
+  mediaRecorder.start(100);
+
+  recStart = Date.now();
+  recInterval = setInterval(updateRecTimer, 100);
+
+  document.getElementById('btnRecord').classList.add('active');
+  document.getElementById('btnRecordLabel').textContent = 'Stop';
+  document.getElementById('recTimer').classList.add('show');
+
+  renderRecFrame();
+  toast('● Aufnahme läuft…');
+}
+
+function renderRecFrame() {
+  if (!isRecording) return;
+
+  const stage  = document.getElementById('stage');
+  const stRect = stage.getBoundingClientRect();
+
+  recCtx.clearRect(0, 0, recCanvas.width, recCanvas.height);
+
+  // Draw bg canvas
+  recCtx.drawImage(canvas, 0, 0, recCanvas.width, recCanvas.height);
+
+  // Draw phone area
+  const phoneEl   = document.querySelector('.phone-body');
+  const phoneRect = phoneEl.getBoundingClientRect();
+  const px = phoneRect.left - stRect.left;
+  const py = phoneRect.top  - stRect.top;
+  const pw = phoneRect.width;
+  const ph = phoneRect.height;
+
+  // Body
+  recCtx.save();
+  recCtx.beginPath();
+  recCtx.roundRect(px, py, pw, ph, 44);
+  const bg = recCtx.createLinearGradient(px, py, px+pw, py+ph);
+  bg.addColorStop(0, '#2a2a2a'); bg.addColorStop(1, '#1a1a1a');
+  recCtx.fillStyle = bg;
+  recCtx.shadowColor = 'rgba(0,0,0,.7)';
+  recCtx.shadowBlur  = 40;
+  recCtx.shadowOffsetY = 20;
+  recCtx.fill();
+  recCtx.restore();
+
+  // Screen
+  recCtx.save();
+  recCtx.beginPath();
+  recCtx.roundRect(px+9, py+9, pw-18, ph-18, 36);
+  recCtx.fillStyle = '#000';
+  recCtx.fill();
+  if (uploadedImage && recImg) {
+    recCtx.save();
+    recCtx.beginPath();
+    recCtx.roundRect(px+9, py+9, pw-18, ph-18, 36);
+    recCtx.clip();
+    recCtx.drawImage(recImg, px+9, py+9, pw-18, ph-18);
+    recCtx.restore();
+  }
+  recCtx.restore();
+
+  // Island
+  recCtx.save();
+  recCtx.fillStyle = '#000';
+  recCtx.beginPath();
+  recCtx.roundRect(px + pw/2 - 40, py + 13, 80, 24, 13);
+  recCtx.fill();
+  recCtx.restore();
+
+  requestAnimationFrame(renderRecFrame);
+}
+
+// Preload recording image ref
+let recImg = null;
+document.getElementById('userImg').addEventListener('load', function() {
+  recImg = this;
+});
+
+function stopRecord() {
+  isRecording = false;
+  clearInterval(recInterval);
+  mediaRecorder.stop();
+  document.getElementById('btnRecord').classList.remove('active');
+  document.getElementById('btnRecordLabel').textContent = 'Aufnehmen';
+  document.getElementById('recTimer').classList.remove('show');
+  toast('⏳ Video wird exportiert…');
+}
+
+function saveVideo() {
+  const blob = new Blob(recChunks, { type: 'video/webm' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'content-market-promo.webm';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast('✓ Video gespeichert!');
+}
+
+function updateRecTimer() {
+  const elapsed = Date.now() - recStart;
+  const s = Math.floor(elapsed / 1000);
+  const m = Math.floor(s / 60);
+  document.getElementById('recTime').textContent = m + ':' + String(s % 60).padStart(2,'0');
+}
+
+/* ════════════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════════════ */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
 </script>
 </body>
 </html>
